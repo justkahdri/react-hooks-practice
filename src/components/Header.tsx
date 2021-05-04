@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import ThemeContext from '../context/ThemeContext';
-// type HeaderProps = {};
 
 const Header = () => {
     const {darkMode, setDarkMode} = useContext(ThemeContext) 

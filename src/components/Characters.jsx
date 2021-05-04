@@ -1,7 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useReducer, useMemo } from "react";
+
+const initialState = {
+    favorites: [],
+}
+
+const favoriteReducer = (state, action) => {
+    switch (action.type) {
+        case 'ADD_TO_FAVORITE':
+            return {...state, favorites: [...state.favorites, action.payload]};
+        default:
+            return state;
+    }
+}
 
 const Characters = () => {
     const [characters, setCharacters] = useState([]);
+    const [favorites, dispatch] = useReducer(favoriteReducer, initialState);
+    const [search, setSearch] = useState(''); 
+
+    // const filteredCharacters = characters.filter(
+    //     character => (character.name.toLowerCase().includes(search.toLocaleLowerCase()))
+    //     );
+
+    const filteredCharacters = useMemo(() => (
+        characters.filter(
+        character => (character.name.toLowerCase().includes(search.toLocaleLowerCase()))
+        )
+    ), [characters, search]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -17,10 +42,31 @@ const Characters = () => {
         fetchData();
     }, []);
 
+    const handleClick = (favorite) => {
+        dispatch({ type: 'ADD_TO_FAVORITE', payload: favorite});
+    }
+
+    const handleSearch = e => setSearch(e.target.value);
+
     return (
         <div className='Characters'>
-            {characters.map((character, idx) => (
-                <h2 key={idx}>{character.name}</h2>
+
+            {favorites.favorites.map(fav => (
+                <li key={fav.id}>
+                    {fav.name}
+                </li>
+            ))}
+
+            <div className='search'>
+                <input type='text' value={search} onChange={handleSearch}/>
+            </div>
+            {filteredCharacters.map((character, idx) => (
+                <div key={idx} className='item'>
+                    <h2 key={idx}>{character.name}</h2>
+                    <button type='button' onClick={() => handleClick(character)}>
+                        Add to Favorites
+                    </button>
+                </div>
             ))}
         </div>
     );
